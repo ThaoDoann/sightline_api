@@ -52,7 +52,7 @@ async def generate_caption(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    host = "0.0.0.0"  # Listen on all network interfaces
+    host = "localhost" 
     port = 8000
     logger.info(f"Starting server on http://{host}:{port}")
     uvicorn.run(app, host=host, port=port) 
