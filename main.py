@@ -165,7 +165,8 @@ async def fetch_captions(token: str = Depends(oauth2_scheme)):
     ]
 
 if __name__ == "__main__":
-    host = "localhost" 
+    # host = "localhost" 
+    host = "0.0.0.0"  # Allow access from any IP
     port = 8000
     logger.info(f"Starting server on http://{host}:{port}")
     uvicorn.run(app, host=host, port=port) 
