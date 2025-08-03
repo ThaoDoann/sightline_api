@@ -4,14 +4,13 @@ from passlib.hash import bcrypt
 from models.user import User
 from auth.jwt_handler import create_access_token
 from database.connection import get_database
-from database.models import users
+from database.dbmodels import users
 
 router = APIRouter()
 
 # Endpoint to register a new user
 @router.post("/register")
 async def register_user(user: User):
-    """Register a new user"""
     database = await get_database()
     
     # Check existing
@@ -43,6 +42,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "user_id": user["user_id"],
         "username": user["username"],
         "email": user["email"]
     }

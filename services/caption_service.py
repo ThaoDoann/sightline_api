@@ -5,7 +5,7 @@ import io
 from datetime import datetime
 from fastapi import HTTPException
 from database.connection import get_database
-from database.models import captions
+from database.dbmodels import captions
 from config.settings import MODEL_NAME, MAX_CAPTION_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -23,8 +23,9 @@ class CaptionService:
         self.model = BlipForConditionalGeneration.from_pretrained(MODEL_NAME)
         logger.info("BLIP model loaded successfully!")
     
+    
     # Generate caption for an image
-    async def generate_caption(self, image_data: bytes) -> str:
+    async def generate_caption(self, user_id: int, image_data: bytes) -> str:
         try:
             image = Image.open(io.BytesIO(image_data))
             inputs = self.processor(image, return_tensors="pt")
@@ -34,6 +35,7 @@ class CaptionService:
             # Save to database
             database = await get_database()
             query = captions.insert().values(
+                user_id=user_id,
                 caption=caption_text,
                 image_data=image_data,
                 timestamp=datetime.utcnow()
@@ -44,10 +46,13 @@ class CaptionService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error generating caption: {str(e)}")
     
-    # Get all captions
-    async def get_all_captions(self):
+
+
+    # Get all captions for a user
+    async def get_user_captions(self, user_id: int):
         database = await get_database()
-        query = captions.select().order_by(captions.c.timestamp.desc())
+        query = captions.select().where(captions.c.user_id == user_id).order_by(captions.c.timestamp.desc())
+
         return await database.fetch_all(query)
 
 # Create global instance

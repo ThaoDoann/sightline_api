@@ -1,6 +1,6 @@
 from databases import Database
 from config.settings import DATABASE_URL
-from .models import create_tables
+from .dbmodels import create_tables
 
 database = Database(DATABASE_URL)
 
