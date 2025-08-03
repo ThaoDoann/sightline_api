@@ -52,6 +52,14 @@ class CaptionService:
     async def get_user_captions(self, user_id: int):
         database = await get_database()
         query = captions.select().where(captions.c.user_id == user_id).order_by(captions.c.timestamp.desc())
+        return await database.fetch_all(query)
+    
+    # Delete all captions for a user
+    async def delete_user_captions(self, user_id: int):
+        database = await get_database()
+        query = captions.delete().where(captions.c.user_id == user_id)
+        rowcount = await database.execute(query)
+        return rowcount
 
         return await database.fetch_all(query)
 

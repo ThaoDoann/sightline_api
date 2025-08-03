@@ -42,6 +42,15 @@ async def fetch_user_captions(user_id: int, token: str = Depends(oauth2_scheme))
     ]
 
 
+# Delete all captions for a specific user
+@router.delete("/all-captions")
+async def delete_user_captions(user_id: int, token: str = Depends(oauth2_scheme)):
+    deleted_count = await caption_service.delete_user_captions(user_id)
+    return {
+        "message": f"Successfully deleted {deleted_count} captions for user {user_id}",
+        "deleted_count": deleted_count
+    }
+
 # Get all captions (admin endpoint)
 @router.get("/all-captions", response_model=list[Caption])
 async def fetch_all_captions(token: str = Depends(oauth2_scheme)):
