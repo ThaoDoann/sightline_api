@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.connection import connect_database, disconnect_database
 from routers import auth, captions
-from config.settings import ALLOWED_ORIGINS, HOST, PORT
+from config.settings import ALLOWED_ORIGINS, HOST, PORT, API_VERSION
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +22,12 @@ async def lifespan(app: FastAPI):
     await disconnect_database()
     logger.info("Database disconnected")
 
-app = FastAPI(title="Sightline API", lifespan=lifespan)
+app = FastAPI(
+    title="Sightline API",
+    description="AI-powered image captioning service with user management",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Configure CORS
 app.add_middleware(
@@ -33,13 +38,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth.router)
-app.include_router(captions.router)
+# Include routers with configurable API versioning
+api_prefix = f"/api/{API_VERSION}"
+app.include_router(auth.router, prefix=api_prefix, tags=["Authentication"])
+app.include_router(captions.router, prefix=api_prefix, tags=["Captions"])
 
-@app.get("/")
+
+@app.get("/", tags=["Root"])
 async def root():
-    return {"message": "Welcome to Sightline API"}
+    return {
+        "message": f"Welcome to Sightline API",
+        "api_version": API_VERSION,
+    }
+
 
 if __name__ == "__main__":
     logger.info(f"Starting server on http://{HOST}:{PORT}")

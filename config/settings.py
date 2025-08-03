@@ -25,3 +25,6 @@ PORT = int(os.getenv("PORT"))
 
 # Environment
 ENVIRONMENT = os.getenv("ENVIRONMENT")
+
+# API Configuration
+API_VERSION = os.getenv("API_VERSION")
