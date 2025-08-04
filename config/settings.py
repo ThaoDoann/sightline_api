@@ -1,8 +1,14 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Determine environment and load appropriate .env file
+API_ENV = os.getenv("ENVIRONMENT", "dev")
+
+if API_ENV == "prod":
+    load_dotenv(".env.prod")
+else:
+    # Default to development
+    load_dotenv(".env")
 
 # Security Configuration
 SECRET_KEY = os.getenv("SECRET_KEY")
