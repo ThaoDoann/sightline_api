@@ -4,18 +4,19 @@ This is the backend API for the Sightline application, providing image captionin
 
 ## Setup
 
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+### Running on Localhost
 
-2. Install dependencies:
+1. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the server:
+2. **Create new SQLite database:**
+```bash
+py scripts/init_db.py
+```
+
+3. **Run the server:**
 ```bash
 python main.py
 ```
@@ -24,11 +25,36 @@ The server will start on http://localhost:8000
 
 ## API Endpoints
 
-- `GET /`: Welcome message
-- `POST /caption`: Generate caption for an image
-  - Accepts multipart/form-data with an image file
-  - Returns JSON with the generated caption
+### Root
+- **`GET /`** - Welcome message and API version
 
-## CORS Configuration
+### Authentication (No JWT required)
+- **`POST /api/v1/register`** - Register new user
+  - **Body:** `{"username": "string", "email": "string", "password": "string"}`
+  - **Response:** `{"message": "User registered successfully"}`
 
-The API is configured to accept requests from any origin. In production, you should restrict this to specific origins. 
+- **`POST /api/v1/login`** - User login
+  - **Body:** `{"username": "email", "password": "string"}` (form-data)
+  - **Response:** `{"access_token": "jwt_token", "token_type": "bearer", "user_id": 1, "username": "string", "email": "string"}`
+
+### Captions (JWT required)
+- **`POST /api/v1/generate-caption`** - Generate caption for uploaded image
+  - **Headers:** `Authorization: Bearer <jwt_token>`
+  - **Body:** `multipart/form-data` with `user_id` and `file`
+  - **File types:** JPG, JPEG, PNG
+  - **Response:** `{"caption": "string", "image_base64": "string"}`
+
+- **`GET /api/v1/captions?user_id=<id>`** - Get user's caption history
+  - **Headers:** `Authorization: Bearer <jwt_token>`
+  - **Query params:** `user_id` (required)
+  - **Response:** Array of caption objects with images
+
+- **`DELETE /api/v1/all-captions?user_id=<id>`** - Delete all user captions
+  - **Headers:** `Authorization: Bearer <jwt_token>`
+  - **Query params:** `user_id` (required)
+  - **Response:** `{"deleted_count": number}`
+
+### Interactive API Documentation
+- **`GET /docs`** - Swagger/OpenAPI interactive documentation
+- **`GET /redoc`** - ReDoc API documentation
+
